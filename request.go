@@ -51,7 +51,7 @@ type alexaError struct {
 	Message string `json:"message"`
 }
 
-type alexaSlotResolution struct {
+type slotResolution struct {
 	Authority string `json:"authority"`
 	Status    struct {
 		Code string `json:"code"`
@@ -64,47 +64,47 @@ type alexaSlotResolution struct {
 	} `json:"values"`
 }
 
-type alexaSlot struct {
+type slot struct {
 	Name               string `json:"name"`
 	Value              string `json:"value"`
 	ConfirmationStatus string `json:"confirmationStatus"`
 	Resolutions        struct {
-		ResolutionsPerAuthority []alexaSlotResolution `json:"resolutionsPerAuthority"`
+		ResolutionsPerAuthority []slotResolution `json:"resolutionsPerAuthority"`
 	} `json:"resolutions"`
 }
 
-type alexaIntent struct {
-	Name               string               `json:"name"`
-	ConfirmationStatus string               `json:"confirmationStatus"`
-	Slots              map[string]alexaSlot `json:"slots"`
+type intent struct {
+	Name               string          `json:"name"`
+	ConfirmationStatus string          `json:"confirmationStatus"`
+	Slots              map[string]slot `json:"slots"`
 }
 
 type requestBody struct {
-	Type                 string      `json:"type"`
-	ID                   string      `json:"requestId"`
-	Timestamp            string      `json:"timestamp"`
-	Token                string      `json:"token"`
-	OffsetInMilliseconds uint64      `json:"offsetInMilliseconds"`
-	Locale               string      `json:"locale"`
-	Reason               string      `json:"reason"`
-	Error                alexaError  `json:"error"`
-	DialogState          string      `json:"dialogState"`
-	Intent               alexaIntent `json:"intent"`
+	Type                 string     `json:"type"`
+	ID                   string     `json:"requestId"`
+	Timestamp            string     `json:"timestamp"`
+	Token                string     `json:"token"`
+	OffsetInMilliseconds uint64     `json:"offsetInMilliseconds"`
+	Locale               string     `json:"locale"`
+	Reason               string     `json:"reason"`
+	Error                alexaError `json:"error"`
+	DialogState          string     `json:"dialogState"`
+	Intent               intent     `json:"intent"`
 }
 
 // AlexaRequest structure that will be sent from Alexa
-type AlexaRequest struct {
+type Request struct {
 	Version string      `json:"version"`
 	Session session     `json:"session"`
 	Context context     `json:"context"`
 	Request requestBody `json:"request"`
 }
 
-func (r AlexaRequest) GetRequestType() string {
+func (r Request) GetRequestType() string {
 	return r.Request.Type
 }
 
-func (r AlexaRequest) GetArgument(slot string) string {
+func (r Request) GetArgument(slot string) string {
 	if r.Request.Type != "IntentRequest" {
 		return ""
 	}
@@ -116,7 +116,7 @@ func (r AlexaRequest) GetArgument(slot string) string {
 	return ""
 }
 
-func (r AlexaRequest) GetIntent() string {
+func (r Request) GetIntent() string {
 	if r.Request.Type != "IntentRequest" {
 		return r.Request.Type
 	}
@@ -124,6 +124,10 @@ func (r AlexaRequest) GetIntent() string {
 	return r.Request.Intent.Name
 }
 
-func (r AlexaRequest) GetPlatform() int {
-	return AmazonAlexa
+func (r Request) GetPlatform() int {
+	return 0
+}
+
+func (r Request) GetResponse() Response {
+
 }
