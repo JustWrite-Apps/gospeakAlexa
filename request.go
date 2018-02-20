@@ -59,8 +59,10 @@ type alexaError struct {
 
 type slotResolution struct {
 	Authority string `json:"authority"`
-	Status    string `json:"status>code"`
-	Values    []struct {
+	Status    struct {
+		Code string `json:"code"`
+	} `json:"status"`
+	Values []struct {
 		Value struct {
 			Name string `json:"name"`
 			ID   string `json:"id"`
@@ -115,7 +117,7 @@ func getBestValue(val slot) string {
 		if len(val.Resolutions.ResolutionsPerAuthority) > 0 {
 			resolution := val.Resolutions.ResolutionsPerAuthority[0]
 
-			if len(resolution.Values) > 0 && resolution.Status == "ER_SUCCESS_MATCH" {
+			if len(resolution.Values) > 0 && resolution.Status.Code == "ER_SUCCESS_MATCH" {
 				result = resolution.Values[0].Value.Name
 			}
 		}
