@@ -1,5 +1,11 @@
 package gospeakAlexa
 
+import (
+	"strconv"
+
+	"github.com/blforce/gospeakCommon"
+)
+
 type application struct {
 	ID string `json:"applicationId"`
 }
@@ -53,10 +59,8 @@ type alexaError struct {
 
 type slotResolution struct {
 	Authority string `json:"authority"`
-	Status    struct {
-		Code string `json:"code"`
-	} `json:"status"`
-	Values []struct {
+	Status    string `json:"status>code"`
+	Values    []struct {
 		Value struct {
 			Name string `json:"name"`
 			ID   string `json:"id"`
@@ -68,9 +72,9 @@ type slot struct {
 	Name               string `json:"name"`
 	Value              string `json:"value"`
 	ConfirmationStatus string `json:"confirmationStatus"`
-	Resolutions        struct {
-		ResolutionsPerAuthority []slotResolution `json:"resolutionsPerAuthority"`
-	} `json:"resolutions"`
+	Resolutions        *struct {
+		ResolutionsPerAuthority []slotResolution `json:"resolutionsPerAuthority,omitempty"`
+	} `json:"resolutions,omitempty"`
 }
 
 type intent struct {
@@ -104,16 +108,37 @@ func (r Request) GetRequestType() string {
 	return r.Request.Type
 }
 
+func getBestValue(val slot) string {
+	result := val.Value
+
+	if val.Resolutions != nil {
+		if len(val.Resolutions.ResolutionsPerAuthority) > 0 {
+			resolution := val.Resolutions.ResolutionsPerAuthority[0]
+
+			if len(resolution.Values) > 0 && resolution.Status == "ER_SUCCESS_MATCH" {
+				result = resolution.Values[0].Value.Name
+			}
+		}
+	}
+
+	return result
+}
+
 func (r Request) GetArgument(slot string) string {
 	if r.Request.Type != "IntentRequest" {
 		return ""
 	}
 
 	if val, ok := r.Request.Intent.Slots[slot]; ok {
-		return val.Value
+		return getBestValue(val)
 	}
 
 	return ""
+}
+
+func (r Request) GetArgumentInt(slot string) int64 {
+	result, _ := strconv.ParseInt(r.GetArgument(slot), 10, 64)
+	return result
 }
 
 func (r Request) GetIntent() string {
@@ -125,9 +150,11 @@ func (r Request) GetIntent() string {
 }
 
 func (r Request) GetPlatform() int {
-	return 0
+	return gospeakCommon.AmazonAlexa
 }
 
-func (r Request) GetResponse() Response {
-
+func (r Request) GetResponse() gospeakCommon.Response {
+	return Response{
+		Version: "1.0",
+	}
 }

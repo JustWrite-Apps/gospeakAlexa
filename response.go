@@ -1,15 +1,49 @@
 package gospeakAlexa
 
-// type responseBody struct {
-// 	OutputSpeech     outputSpeech           `json:"outputSpeech"`
-// 	Card             card                   `json:"card"`
-// 	Reprompt         outputSpeech           `json:"reprompt"`
-// 	Directives       map[string]interface{} `json:"directives"`
-// 	ShouldEndSession bool                   `json:"shouldEndSession"`
-// }
+import (
+	"encoding/json"
+	"fmt"
 
-// type Response struct {
-// 	Version           string            `json:"version"`
-// 	SessionAttributes map[string]string `json:"sessionAttributes"`
-// 	Response          responseBody      `json:"response"`
-// }
+	"github.com/blforce/gospeakCommon"
+)
+
+type outputSpeech struct {
+	Type string `json:"type"`
+	Text string `json:"text,omitempty"`
+	SSML string `json:"ssml,omitempty"`
+}
+
+type card struct {
+	Type  string `json:"type,omitempty"`
+	Title string `json:"title,omitempty"`
+}
+
+type responseBody struct {
+	OutputSpeech     outputSpeech           `json:"outputSpeech"`
+	Card             *card                  `json:"card,omitempty"`
+	Reprompt         *outputSpeech          `json:"reprompt,omitempty"`
+	Directives       map[string]interface{} `json:"directives,omitempty"`
+	ShouldEndSession bool                   `json:"shouldEndSession"`
+}
+
+type Response struct {
+	Version           string            `json:"version"`
+	SessionAttributes map[string]string `json:"sessionAttributes,omitempty"`
+	Response          responseBody      `json:"response"`
+}
+
+func (r Response) SetText(value string) gospeakCommon.Response {
+	r.Response.OutputSpeech.Type = "PlainText"
+	r.Response.OutputSpeech.Text = value
+	return r
+}
+
+func (r Response) GetBytes() []byte {
+	result, err := json.Marshal(r)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	return result
+}
