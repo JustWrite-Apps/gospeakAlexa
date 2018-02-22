@@ -13,9 +13,16 @@ type outputSpeech struct {
 	SSML string `json:"ssml,omitempty"`
 }
 
+type image struct {
+	SmallImage string `json:"smallImageUrl,omitempty"`
+	LargeImage string `json:"largeImageUrl,omitempty"`
+}
+
 type card struct {
 	Type  string `json:"type,omitempty"`
 	Title string `json:"title,omitempty"`
+	Text  string `json:"text,omitempty"`
+	Image *image `json:"image,omitempty"`
 }
 
 type responseBody struct {
@@ -35,6 +42,22 @@ type Response struct {
 func (r Response) SetText(value string) gospeakCommon.Response {
 	r.Response.OutputSpeech.Type = "PlainText"
 	r.Response.OutputSpeech.Text = value
+	return r
+}
+
+func (r Response) SetImageCard(title, imageURL, text string) gospeakCommon.Response {
+	r.Response.Card = &card{
+		Type:  "Standard",
+		Title: title,
+		Text:  text,
+	}
+
+	if len(imageURL) > 0 {
+		r.Response.Card.Image = &image{
+			LargeImage: imageURL,
+		}
+	}
+
 	return r
 }
 
