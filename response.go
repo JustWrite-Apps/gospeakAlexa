@@ -39,9 +39,10 @@ type Response struct {
 	Response          responseBody      `json:"response"`
 }
 
-func (r Response) SetText(value string) gospeakCommon.Response {
+func (r Response) AddText(value string) gospeakCommon.Response {
 	r.Response.OutputSpeech.Type = "PlainText"
-	r.Response.OutputSpeech.Text = value
+
+	r.Response.OutputSpeech.Text = r.Response.OutputSpeech.Text + value + " "
 	return r
 }
 
