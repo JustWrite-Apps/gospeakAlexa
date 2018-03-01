@@ -145,7 +145,7 @@ func (r Request) GetArgumentInt(slot string) int64 {
 
 func (r Request) GetIntent() string {
 	if r.Request.Type != "IntentRequest" {
-		return r.Request.Type
+		return "_" + r.Request.Type
 	}
 
 	return r.Request.Intent.Name
@@ -159,4 +159,8 @@ func (r Request) GetResponse() gospeakCommon.Response {
 	return Response{
 		Version: "1.0",
 	}
+}
+
+func (r Request) GetLanguage() string {
+	return r.Request.Locale
 }
